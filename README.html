@@ -1,0 +1,253 @@
+# Main
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+       * {
+        font-family: "Montserrat", sans-serif;
+      }
+  
+      .name {
+        text-align: center;
+      }
+        
+      form {
+        margin: 0 auto;
+        border-radius: 1rem;
+        border: 1px solid #ccc; 
+        padding: 20px; 
+        display: flex;
+        flex-direction: column;
+        max-width: 50%;
+        background-color: #e6e6e6;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+      }
+        
+      .form-text label {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        display: block;
+      }
+        
+      .form-text input,
+      .form-text textarea {
+        border-radius: 0.3rem;
+        border: 1px solid #ddd; 
+        padding: 10px; 
+        margin-bottom: 15px; 
+        box-sizing: border-box; 
+        width: 100%;
+      }
+        
+      .form-text textarea {
+        min-height: 100px; 
+      }
+        
+      .form-text {
+        text-align: left;
+      }
+        
+      .btn {
+        background-color: #e0f7fa; 
+        border: 1px solid #81d4fa;
+        border-radius: 0.3rem;
+        padding: 10px 20px; 
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+        
+      .btn:hover {
+        background-color: #b2ebf2; 
+      }
+        
+      .notes-blok {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-left: 1rem;
+        margin-top: 1rem;
+      }
+      .content-blok {
+        border-style: solid;
+        border-color: #b2ebf2;
+        border-width: 5px;
+        border-radius: 2px;
+        padding: 20px;
+        position: relative;
+        margin: 30px auto;
+        width: 320px;
+        height: 350px;
+        background: #fff;
+      }
+        
+      .label-name {
+        font-size: 20px;
+        font-weight: 600;
+      }
+        
+      .info-content {
+        font-size: 15px;
+        font-weight: 300;
+        margin-top: 2%;
+        word-wrap: break-word;
+        color: rgb(60, 60, 60);
+      }
+      
+      .content-blok::before,
+      .content-blok::after {
+        content: "";
+        position: absolute;
+        bottom: 10px;
+        width: 40%;
+        height: 10px;
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
+        z-index: -1;
+        transition: all 0.3s ease-in-out;
+      }
+      
+      .content-blok::before {
+        left: 15px;
+        transform: skew(-5deg) rotate(-5deg);
+      }
+      
+      .content-blok::after {
+        right: 15px;
+        transform: skew(5deg) rotate(5deg);
+      }
+      
+      .content-blok:hover::before,
+      .content-blok:hover::after {
+        box-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+      }
+      
+      .content-blok:hover::before {
+        left: 5px;
+      }
+      
+      .content-blok:hover::after {
+        right: 5px;
+      }
+      
+      .rename {
+        font-size: 16px;
+      }
+      
+      .delete-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #888; 
+        padding: 0; 
+        line-height: 1; 
+      }
+      .delete-btn:hover {
+          color: #333;
+      }
+    </style>
+    <title>TO DO LIST</title>
+  </head>
+  <body>
+    <header>
+      <h1 class="name">Список дел</h1>
+    </header>
+    <form>
+          <div class="form-text">
+            <label>Название заметки</label>
+            <input
+              type="text"
+              id="name-list"
+              placeholder="Введите название"
+              required
+            />
+          </div>
+          <div class="form-text">
+            <label>Категория</label>
+            <input
+              type="text"
+              id="category"
+              placeholder="Введите категорию"
+              required
+            />
+          </div>
+          <div class="form-text">
+            <label>Содержание</label>
+            <textarea
+              id="content"
+              placeholder="Введите заметку"
+              required
+            ></textarea>
+          </div>
+            <button id="save" class="btn">Сохранить заметку</button>
+      </div>
+    </form>
+    <div class="notes-blok" id="sellPanel"></div>
+    <script>
+      const nam = document.getElementById("name-list");
+      const cat = document.getElementById("category");
+      const con = document.getElementById("content");
+      const btn = document.getElementById("save");
+      const div = document.getElementById("sellPanel");
+      
+      let array = JSON.parse(localStorage.getItem("info")) || [];
+      
+      btn.onclick = saveInfo;
+      
+      function saveInfo() {
+          if (nam.value !== "" && cat.value !== "" && con.value !== "") {
+              array.push({
+                  nameObj: nam.value,
+                  categoryObj: cat.value,
+                  contentObj: con.value,
+              });
+              localStorage.setItem("info", JSON.stringify(array));
+              showInfo();
+              nam.value = "";
+              cat.value = "";
+              con.value = "";
+          }
+          console.log(array.length);
+      }
+      
+      function showInfo() {
+          div.innerHTML = "";
+          for (let i = 0; i < array.length; i++) {
+              const panel = document.createElement("div");
+              panel.className = "content-blok";
+              const deleteBtn = document.createElement("button");
+              deleteBtn.className = "delete-btn";
+              deleteBtn.innerHTML = "&times;"; 
+              deleteBtn.onclick = () => deleteNote(i); 
+              const name = document.createElement("p");
+              name.className = "label-name";
+              name.innerText = array[i].nameObj;
+              const coteg = document.createElement("p");
+              coteg.className = "rename";
+              coteg.innerText = "Категория: " + array[i].categoryObj;
+              const information = document.createElement("p");
+              information.className = "info-content";
+              information.innerText = array[i].contentObj;
+      
+              panel.appendChild(deleteBtn); 
+              panel.appendChild(name);
+              panel.appendChild(coteg);
+              panel.appendChild(information);
+              div.appendChild(panel);
+          }
+      }
+      
+      function deleteNote(index) {
+          array.splice(index, 1);
+          localStorage.setItem("info", JSON.stringify(array)); 
+          showInfo();
+      }
+      
+      showInfo();
+    </script>
+  </body>
+</html>
